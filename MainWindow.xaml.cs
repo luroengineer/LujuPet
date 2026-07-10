@@ -18,6 +18,9 @@ namespace LujuPet
         private DateTime lastInteraction;
         private Random random = new Random();
 
+        bool isWalking = false;
+        bool isDrag = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,7 +46,8 @@ namespace LujuPet
 
         private void IdleTimer_Tick(object sender, EventArgs e)
         {
-            if ((DateTime.Now - lastInteraction).TotalSeconds > 10)
+            double idleTimer = random.Next(3, 5);
+            if ((DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
             {
                 StartRandomMove();
                 lastInteraction = DateTime.Now; // 重置時間，避免持續觸發
@@ -53,7 +57,14 @@ namespace LujuPet
         // 隨機左右移動，移動時顯示 petMove.gif，結束後恢復 pet.gif
         private async void StartRandomMove()
         {
-            int duration = random.Next(5, 11); // 5~10 秒
+            if (isWalking) //避免有重複的走動事件
+            {
+                return;
+            }
+
+            isWalking = true; 
+
+            int duration = random.Next(3, 7); // 3~6 秒
             int direction = random.Next(0, 2) == 0 ? -1 : 1; // -1 左, 1 右
             double step = 5 * direction; // 每次移動的像素量
             DateTime endTime = DateTime.Now.AddSeconds(duration);
@@ -63,17 +74,24 @@ namespace LujuPet
 
             while (DateTime.Now < endTime)
             {
+                if (isDrag)
+                {
+                    break;
+                }
                 this.Left += step;
                 await Task.Delay(100); // 每 0.1 秒移動一次
             }
 
             // 移動結束後恢復原始 GIF
             ChangeGif("Images/pet.gif");
+
+            isWalking = false;
         }
 
         // 拖曳移動功能 + 判斷拖曳時間
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            isDrag = true;
             lastInteraction = DateTime.Now; // 更新互動時間
 
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -85,7 +103,7 @@ namespace LujuPet
                 this.DragMove(); // 阻塞直到拖曳結束
                 sw.Stop();
 
-                if (sw.Elapsed.TotalSeconds > 0.2)
+                if (sw.Elapsed.TotalSeconds > 0.1)
                 {
                     Task.Delay(500).ContinueWith(_ =>
                     {
@@ -101,6 +119,7 @@ namespace LujuPet
                     });
                 }
             }
+            isDrag = false;
         }
 
         // 右鍵點擊 → 顯示選單
