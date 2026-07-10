@@ -10,7 +10,8 @@
         AllowsTransparency="True" 
         Background="Transparent" 
         Topmost="True"
-        MouseLeftButtonDown="Window_MouseDown"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp"
         >
     <Grid>
         <!-- 顯示 GIF 動畫 -->
