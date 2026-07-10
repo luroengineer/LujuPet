@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,9 +20,17 @@ namespace LujuPet
     /// </summary>
     public partial class MainWindow : Window
     {
+        double petSize = 0.5;
         public MainWindow()
         {
             InitializeComponent();
+            ResizePet();
+        }
+
+        // 重新設定寵物尺寸
+        private void ResizePet()
+        {
+            PetImage.RenderTransform = new ScaleTransform(petSize, petSize);
         }
 
         // 拖曳移動功能 + 判斷拖曳時間
@@ -65,9 +74,29 @@ namespace LujuPet
         private void PetImage_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             ContextMenu menu = new ContextMenu();
+
+            // 結束寵物選項
             MenuItem exitItem = new MenuItem { Header = "結束寵物" };
             exitItem.Click += (s, args) => Application.Current.Shutdown();
             menu.Items.Add(exitItem);
+
+            // 尺寸選單
+            MenuItem sizeMenu = new MenuItem { Header = "寵物尺寸" };
+
+            // 建立 0% ~ 100% 的選項（每 20% 一格，可依需求調整）
+            for (int i = 10; i <= 100; i += 10)
+            {
+                MenuItem sizeItem = new MenuItem { Header = $"{i}%" };
+                int scale = i; // 捕捉迴圈變數
+                sizeItem.Click += (s, args) =>
+                {
+                    petSize = scale / 100.0;
+                    ResizePet();
+                };
+                sizeMenu.Items.Add(sizeItem);
+            }
+
+            menu.Items.Add(sizeMenu);
 
             menu.IsOpen = true;
         }
