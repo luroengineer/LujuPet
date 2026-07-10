@@ -24,32 +24,42 @@ namespace LujuPet
             InitializeComponent();
         }
 
-        // 拖曳移動功能 + 切換 GIF
+        // 拖曳移動功能 + 判斷拖曳時間
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                // 切換成拖曳 GIF
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                // 拖曳前顯示拖曳 GIF
                 ChangeGif("Images/petDrag.gif");
-                this.DragMove();
 
-                // 拖曳結束後換回原始 GIF
-                ChangeGif("Images/pet.gif");
-            }
+                this.DragMove(); // 阻塞直到拖曳結束
 
-            sw.Stop();
+                sw.Stop();
 
-            // 判斷是否超過 0.2 秒
-            if (sw.Elapsed.TotalSeconds < 0.2)
-            {
-                ChangeGif("Images/petClick.gif");
+                if (sw.Elapsed.TotalSeconds > 0.2)
+                {
+                    // 拖曳超過 0.2 秒 → 延遲 0.5 秒再換回原始 GIF
+                    Task.Delay(500).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
+                    });
+                }
+                else
+                {
+                    // 拖曳小於等於 0.2 秒 → 當作點擊
+                    ChangeGif("Images/petClick.gif");
+
+                    // 點擊後也延遲 0.5 秒再換回原始 GIF
+                    Task.Delay(500).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
+                    });
+                }
             }
         }
-
 
         // 右鍵點擊 → 顯示選單
         private void PetImage_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -65,9 +75,9 @@ namespace LujuPet
         // 共用方法：切換 GIF
         private void ChangeGif(string path)
         {
-            var uri = new Uri($"pack://application:,,,/"+path, UriKind.Absolute);
+            var uri = new Uri($"pack://application:,,,/" + path, UriKind.Absolute);
             var image = new BitmapImage(uri);
-            WpfAnimatedGif.ImageBehavior.SetAnimatedSource(PetImage, image);
+            ImageBehavior.SetAnimatedSource(PetImage, image);
         }
 
     }
