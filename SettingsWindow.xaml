@@ -1,0 +1,35 @@
+﻿<Window x:Class="LujuPet.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="寵物設定" Height="200" Width="300"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 寵物大小 -->
+        <StackPanel Orientation="Horizontal" Margin="0,5">
+            <Label Content="寵物大小 (0.1 ~ 1.0)" Width="150"/>
+            <TextBox x:Name="SizeBox" Text="{Binding PetSize}" Width="100"/>
+        </StackPanel>
+
+        <!-- 允許走動 -->
+        <CheckBox x:Name="WalkBox" IsChecked="{Binding AllowWalk}" Content="允許走動" Grid.Row="1" Margin="0,5"/>
+
+        <!-- 允許午餐 -->
+        <CheckBox x:Name="LunchBox" IsChecked="{Binding AllowLunch}" Content="允許午餐" Grid.Row="2" Margin="0,5"/>
+
+        <!-- 允許晚餐 -->
+        <CheckBox x:Name="DinnerBox" IsChecked="{Binding AllowDinner}" Content="允許晚餐" Grid.Row="3" Margin="0,5"/>
+
+
+        <!-- 儲存按鈕 -->
+        <Button x:Name="SaveButton" Content="儲存" Grid.Row="3" Width="80" Height="30" 
+                HorizontalAlignment="Right" Margin="0,10,0,0"/>
+    </Grid>
+</Window>

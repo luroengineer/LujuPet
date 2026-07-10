@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,13 +15,13 @@ namespace LujuPet
 {
     public partial class MainWindow : Window
     {
-        double petSize = 0.4;
-        bool allowWalk = true;
-        bool allowLunch = true;
-        
+        PetConfig petConfig = new PetConfig();
+
         private DispatcherTimer idleTimer;
         private DateTime lastInteraction;
         private Random random = new Random();
+
+        private string configPath = "petConfig.json";
 
         bool isWalking = false;
         bool isDrag = false;
@@ -27,15 +29,33 @@ namespace LujuPet
         public MainWindow()
         {
             InitializeComponent();
+            LoadConfig();
             ResizePet();
             InitIdleTimer();
             lastInteraction = DateTime.Now;
         }
 
+        private void LoadConfig()
+        {
+            if (File.Exists(configPath))
+            {
+                string json = File.ReadAllText(configPath);
+                petConfig = JsonSerializer.Deserialize<PetConfig>(json);
+
+                ResizePet();
+            }
+        }
+
+        private void SaveConfig()
+        {
+            string json = JsonSerializer.Serialize(petConfig, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configPath, json);
+        }
+
         // 重新設定寵物尺寸
         private void ResizePet()
         {
-            PetImage.RenderTransform = new ScaleTransform(petSize, petSize);
+            PetImage.RenderTransform = new ScaleTransform(petConfig.PetSize, petConfig.PetSize);
         }
 
         // 初始化閒置檢查計時器
@@ -57,12 +77,12 @@ namespace LujuPet
 
         private void IdleTimer_Tick(object sender, EventArgs e)
         {
-            if (allowLunch)
+            if (petConfig.AllowLunch)
             {
-                double idleTimer = random.Next(5, 10);
+                double idleTimer = random.Next(8, 15);
 
-                DateTime start = DateTime.Today.AddHours(23);   // 今天早上 9 點
-                DateTime end = DateTime.Today.AddHours(24);  // 今天下午 5 點
+                DateTime start = DateTime.Today.AddHours(12);  
+                DateTime end = DateTime.Today.AddHours(13);  
                 if (IsTimePeriod(start, end) && (DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
                 {
                     HaveLunch();
@@ -70,7 +90,20 @@ namespace LujuPet
                 }
             }
 
-            if (allowWalk)
+            if (petConfig.AllowDinner)
+            {
+                double idleTimer = random.Next(8, 15);
+
+                DateTime start = DateTime.Today.AddHours(18); 
+                DateTime end = DateTime.Today.AddHours(19); 
+                if (IsTimePeriod(start, end) && (DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
+                {
+                    HaveDinner();
+                    lastInteraction = DateTime.Now;
+                }
+            }
+
+            if (petConfig.AllowWalk)
             {
                 double idleTimer = random.Next(3, 18);
                 if ((DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
@@ -83,6 +116,11 @@ namespace LujuPet
         }
 
         private async void HaveLunch()
+        {
+            ChangeGif("Images/petEat.gif");
+        }
+
+        private async void HaveDinner()
         {
             ChangeGif("Images/petEat.gif");
         }
@@ -132,14 +170,6 @@ namespace LujuPet
                     //MessageBox.Show("寵物超出螢幕範圍！", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     break;
                 }
-
-                // 檢查是否超出邊界
-                /*if (nextLeft < 0 || nextLeft + this.Width > screenWidth)
-                {
-                    string msg = nextLeft.ToString() + "," + screenWidth.ToString();
-                    MessageBox.Show("寵物碰到螢幕邊緣了！" + msg, "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    break; // 停止移動
-                }*/
 
                 this.Left = nextLeft;
                 await Task.Delay(100); // 每 0.1 秒移動一次
@@ -193,24 +223,27 @@ namespace LujuPet
 
         private void FeedPet()
         {
+
             int randomSeed = random.Next(0, 100);
 
-            if (randomSeed > 10)
+            if (randomSeed > 100)
             {
                 ChangeGif("Images/petGoodApple.gif");
-                Task.Delay(1000).ContinueWith(_ =>
+                Task.Delay(500).ContinueWith(_ =>
                 {
-                    Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
+                    //Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
                 });
             }
             else
             {
                 ChangeGif("Images/petBadApple.gif");
-                Task.Delay(100).ContinueWith(_ =>
+                Task.Delay(5000).ContinueWith(_ =>
                 {
-                    //Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
+                    Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
                 });
             }
+
+            lastInteraction = DateTime.Now; // 更新互動時間
         }
 
         // 右鍵點擊 → 顯示選單
@@ -220,30 +253,43 @@ namespace LujuPet
 
             ContextMenu menu = new ContextMenu();
 
-            MenuItem exitItem = new MenuItem { Header = "結束寵物" };
+            MenuItem exitItem = new MenuItem { Header = "結束滷豬" };
             exitItem.Click += (s, args) => Application.Current.Shutdown();
             menu.Items.Add(exitItem);
 
-            MenuItem sizeMenu = new MenuItem { Header = "寵物尺寸" };
+            MenuItem sizeMenu = new MenuItem { Header = "滷豬尺寸" };
             for (int i = 10; i <= 100; i += 10)
             {
                 MenuItem sizeItem = new MenuItem { Header = $"{i}%" };
                 int scale = i;
                 sizeItem.Click += (s, args) =>
                 {
-                    petSize = scale / 100.0;
+                    petConfig.PetSize = scale / 100.0;
                     ResizePet();
                 };
                 sizeMenu.Items.Add(sizeItem);
             }
             menu.Items.Add(sizeMenu);
 
-            MenuItem feedAppleItem = new MenuItem { Header = "餵食" };
+            MenuItem feedAppleItem = new MenuItem { Header = "餵食蘋果" };
             feedAppleItem.Click += (s, args) =>
             {
                 FeedPet();
             };
             menu.Items.Add(feedAppleItem);
+
+            MenuItem settingsItem = new MenuItem { Header = "開啟設定" };
+            settingsItem.Click += (s, args) =>
+            {
+                SettingsWindow settingsWindow = new SettingsWindow(petConfig);
+                if (settingsWindow.ShowDialog() == true)
+                {
+                    ResizePet();
+                    SaveConfig();
+                    LoadConfig();
+                }
+            };
+            menu.Items.Add(settingsItem);
 
             menu.IsOpen = true;
 
