@@ -1,7 +1,7 @@
 ﻿<Window x:Class="LujuPet.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="寵物設定" Height="480" Width="350"
+        Title="寵物設定" Height="580" Width="350"
         WindowStartupLocation="CenterScreen">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="10">
@@ -71,6 +71,18 @@
                         <TextBox Text="{Binding DinnerEndHour}" Width="40"/>
                         <Label Content=":"/>
                         <TextBox Text="{Binding DinnerEndMinute}" Width="40"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="鬧鐘設定" Margin="0,10,0,0">
+                    <StackPanel Margin="5">
+                        <CheckBox x:Name="AlarmBox" IsChecked="{Binding AllowAlarm}" Content="啟用鬧鐘" Margin="0,5"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <Label Content="時間" Width="40"/>
+                            <TextBox Text="{Binding AlarmHour}" Width="40"/>
+                            <Label Content=":"/>
+                            <TextBox Text="{Binding AlarmMinute}" Width="40"/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>

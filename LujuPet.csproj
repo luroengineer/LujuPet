@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\ALARM.gif" />
     <None Remove="Images\BAD_APPLE.gif" />
     <None Remove="Images\COOK_CRAB.gif" />
     <None Remove="Images\COOK_FA.gif" />
@@ -29,6 +30,7 @@
     <None Remove="Images\petGoodApple.gif" />
     <None Remove="Images\petMove.gif" />
     <None Remove="Images\petWork.gif" />
+    <None Remove="Images\RICE_BALL.gif" />
     <None Remove="Images\SHOCKED.gif" />
     <None Remove="Images\SLEEP.gif" />
     <None Remove="Images\WALK.gif" />
@@ -44,6 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\ALARM.gif" />
     <Resource Include="Images\BAD_APPLE.gif" />
     <Resource Include="Images\COOK_CRAB.gif" />
     <Resource Include="Images\COOK_FA.gif" />
@@ -55,6 +58,7 @@
     <Resource Include="Images\KUAI.gif" />
     <Resource Include="Images\LUNCH.gif" />
     <Resource Include="Images\OVERTIME.gif" />
+    <Resource Include="Images\RICE_BALL.gif" />
     <Resource Include="Images\SHOCKED.gif" />
     <Resource Include="Images\SLEEP.gif" />
     <Resource Include="Images\WALK.gif" />

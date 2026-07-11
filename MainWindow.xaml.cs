@@ -104,6 +104,15 @@ namespace LujuPet
         {
             PET_STATUS status = PET_STATUS.DEFAULT; //(PET_STATUS)(random.Next(0, (int)PET_STATUS.END));
 
+            if (petConfig.AllowAlarm)
+            {
+                DateTime now = DateTime.Now;
+                if (now.Hour == petConfig.AlarmHour && now.Minute == petConfig.AlarmMinute)
+                {
+                    return PET_STATUS.ALARM;
+                }
+            }
+
             if (petConfig.AllowDinner)
             {
                 DateTime start = DateTime.Today.AddHours(petConfig.DinnerStartHour).AddMinutes(petConfig.DinnerStartMinute);
@@ -205,6 +214,9 @@ namespace LujuPet
 
                 switch(status)
                 {
+                    case PET_STATUS.ALARM:
+                        PetAlarm();
+                        break;
                     case PET_STATUS.LUNCH:
                         HaveLunch();
                         break;
@@ -238,6 +250,10 @@ namespace LujuPet
                 isPetBusy = false;
             }
 
+        }
+        private async void PetAlarm()
+        {
+            ChangeGif(PET_STATUS.ALARM);
         }
 
         private async void HaveDinner()
@@ -405,7 +421,7 @@ namespace LujuPet
             PetDefault();
         }
 
-        private void FeedPet()
+        private void FeedApple()
         {
 
             int randomSeed = random.Next(0, 100);
@@ -422,6 +438,19 @@ namespace LujuPet
             {
                 ChangeGif(PET_STATUS.BAD_APPLE);
                 Task.Delay(5000).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() => PetDefault());
+                });
+            }
+
+            lastInteraction = DateTime.Now; // 更新互動時間
+        }
+
+        private void FeedRiceBall()
+        {
+            {
+                ChangeGif(PET_STATUS.RICE_BALL);
+                Task.Delay(500).ContinueWith(_ =>
                 {
                     Dispatcher.Invoke(() => PetDefault());
                 });
@@ -470,9 +499,16 @@ namespace LujuPet
             MenuItem feedAppleItem = new MenuItem { Header = "餵食蘋果" };
             feedAppleItem.Click += (s, args) =>
             {
-                FeedPet();
+                FeedApple();
             };
             menu.Items.Add(feedAppleItem);
+
+            MenuItem feedRiceBallItem = new MenuItem { Header = "餵食飯糰" };
+            feedRiceBallItem.Click += (s, args) =>
+            {
+                FeedRiceBall();
+            };
+            menu.Items.Add(feedRiceBallItem);
 
             MenuItem cookAppleItem = new MenuItem { Header = "熬製滷汁" };
             cookAppleItem.Click += (s, args) =>

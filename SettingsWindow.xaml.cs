@@ -26,6 +26,7 @@ namespace LujuPet
     public enum PET_STATUS
     {
         DEFAULT,
+        ALARM,
         DINNER,
         LUNCH,
         OVERTIME,
@@ -40,6 +41,7 @@ namespace LujuPet
         DRAG,        
         GOOD_APPLE,
         BAD_APPLE,
+        RICE_BALL,
         COOK,
         COOK_FA,
         COOK_CRAB,
@@ -71,5 +73,10 @@ namespace LujuPet
         public int DinnerStartMinute { get; set; } = 20;
         public int DinnerEndHour { get; set; } = 15;
         public int DinnerEndMinute { get; set; } = 30;
+
+        // 鬧鐘設定
+        public bool AllowAlarm { get; set; } = false;   // 鬧鐘開關
+        public int AlarmHour { get; set; } = 7;         // 預設早上 7 點
+        public int AlarmMinute { get; set; } = 30;      // 預設 30 分
     }
 }
