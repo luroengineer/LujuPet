@@ -165,10 +165,15 @@ namespace LujuPet
 
                 Console.WriteLine(petTopLeft.X.ToString() + "," + petBottomRight.X.ToString());
 
-                if ((petTopLeft.X - PetImage.Width / 2) < 0 || (petBottomRight.X - PetImage.Width / 2) > screenWidth)
+                if ((petTopLeft.X) < 0)
                 {
-                    //MessageBox.Show("寵物超出螢幕範圍！", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    break;
+                    step = Math.Abs(step);
+                    Console.WriteLine("撞牆往右");
+                }
+                else if ((petTopLeft.X) > screenWidth)
+                {
+                    step = (-1) * Math.Abs(step);
+                    Console.WriteLine("撞牆往左");
                 }
 
                 this.Left = nextLeft;

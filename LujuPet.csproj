@@ -17,6 +17,7 @@
     <None Remove="Images\petEat.gif" />
     <None Remove="Images\petGoodApple.gif" />
     <None Remove="Images\petMove.gif" />
+    <None Remove="Images\petWork.gif" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +36,7 @@
     <Resource Include="Images\petEat.gif" />
     <Resource Include="Images\petGoodApple.gif" />
     <Resource Include="Images\petMove.gif" />
+    <Resource Include="Images\petWork.gif" />
   </ItemGroup>
 
 </Project>

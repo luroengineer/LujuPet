@@ -1,35 +1,51 @@
 ﻿<Window x:Class="LujuPet.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="寵物設定" Height="200" Width="300"
+        Title="寵物設定" Height="320" Width="350"
         WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- 寵物大小 -->
-        <StackPanel Orientation="Horizontal" Margin="0,5">
-            <Label Content="寵物大小 (0.1 ~ 1.0)" Width="150"/>
-            <TextBox x:Name="SizeBox" Text="{Binding PetSize}" Width="100"/>
-        </StackPanel>
+            <!-- 寵物大小 -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,5">
+                <Label Content="寵物大小 (0.1 ~ 1.0)" Width="150"/>
+                <TextBox x:Name="SizeBox" Text="{Binding PetSize}" Width="100" VerticalContentAlignment="Center"/>
+            </StackPanel>
 
-        <!-- 允許走動 -->
-        <CheckBox x:Name="WalkBox" IsChecked="{Binding AllowWalk}" Content="允許走動" Grid.Row="1" Margin="0,5"/>
+            <!-- 兩欄 CheckBox -->
+            <Grid Grid.Row="1" Margin="0,10,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- 允許午餐 -->
-        <CheckBox x:Name="LunchBox" IsChecked="{Binding AllowLunch}" Content="允許午餐" Grid.Row="2" Margin="0,5"/>
+                <StackPanel Grid.Column="0" Margin="5">
+                    <CheckBox x:Name="WalkBox" IsChecked="{Binding AllowWalk}" Content="允許走動" Margin="0,5"/>
+                    <CheckBox x:Name="LunchBox" IsChecked="{Binding AllowLunch}" Content="允許午餐" Margin="0,5"/>
+                    <CheckBox x:Name="DinnerBox" IsChecked="{Binding AllowDinner}" Content="允許晚餐" Margin="0,5"/>
+                    <CheckBox x:Name="DozeBox" IsChecked="{Binding AllowDoze}" Content="允許瞌睡" Margin="0,5"/>
+                    <CheckBox x:Name="OverTimeBox" IsChecked="{Binding AllowOverTime}" Content="允許加班" Margin="0,5"/>
+                    <CheckBox x:Name="MadBox" IsChecked="{Binding AllowMad}" Content="允許發瘋" Margin="0,5"/>
+                </StackPanel>
 
-        <!-- 允許晚餐 -->
-        <CheckBox x:Name="DinnerBox" IsChecked="{Binding AllowDinner}" Content="允許晚餐" Grid.Row="3" Margin="0,5"/>
+                <StackPanel Grid.Column="1" Margin="5">
+                    <CheckBox x:Name="LeaderBox" IsChecked="{Binding AllowLeader}" Content="允許教主" Margin="0,5"/>
+                    <CheckBox x:Name="UpdateBox" IsChecked="{Binding AllowUpdate}" Content="允許更新" Margin="0,5"/>
+                    <CheckBox x:Name="AdvertiseBox" IsChecked="{Binding AllowAdvertise}" Content="允許廣告" Margin="0,5"/>
+                    <CheckBox x:Name="ItBox" IsChecked="{Binding AllowIt}" Content="哀踢通知" Margin="0,5"/>
+                    <CheckBox x:Name="HrBox" IsChecked="{Binding AllowHr}" Content="人資通知" Margin="0,5"/>
+                    <CheckBox x:Name="AdmBox" IsChecked="{Binding AllowAdm}" Content="管理通知" Margin="0,5"/>
+                </StackPanel>
+            </Grid>
 
-
-        <!-- 儲存按鈕 -->
-        <Button x:Name="SaveButton" Content="儲存" Grid.Row="3" Width="80" Height="30" 
-                HorizontalAlignment="Right" Margin="0,10,0,0"/>
-    </Grid>
+            <!-- 儲存按鈕 -->
+            <Button x:Name="SaveButton" Content="儲存" Grid.Row="2" Width="80" Height="30" 
+                    HorizontalAlignment="Right" Margin="0,10,0,0"/>
+        </Grid>
+    </ScrollViewer>
 </Window>
