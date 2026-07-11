@@ -25,6 +25,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Margin="5">
+                    <CheckBox x:Name="WorkBox" IsChecked="{Binding AllowWork}" Content="允許工作" Margin="0,5"/>
                     <CheckBox x:Name="WalkBox" IsChecked="{Binding AllowWalk}" Content="允許走動" Margin="0,5"/>
                     <CheckBox x:Name="LunchBox" IsChecked="{Binding AllowLunch}" Content="允許午餐" Margin="0,5"/>
                     <CheckBox x:Name="DinnerBox" IsChecked="{Binding AllowDinner}" Content="允許晚餐" Margin="0,5"/>

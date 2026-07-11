@@ -16,7 +16,7 @@
     <Grid>
         <!-- 顯示 GIF 動畫 -->
         <Image x:Name="PetImage"
-               gif:ImageBehavior.AnimatedSource="Images/pet.gif"
+               gif:ImageBehavior.AnimatedSource="Images/DEFAULT.gif"
                Stretch="None"
                MouseRightButtonUp="PetImage_MouseRightButtonUp"/>
     </Grid>

@@ -23,12 +23,31 @@ namespace LujuPet
         }
     }
 
+    public enum PET_STATUS
+    {
+        DEFAULT,
+        OVERTIME,
+        DINNER,
+        LUNCH,
+        SLEEP,
+        DOZE,
+        WORK,
+        WALK,
+        END,
+
+        SHOCKED,
+        DRAG,        
+        GOOD_APPLE,
+        BAD_APPLE,
+    }
+
     public class PetConfig
     {
         public double PetSize { get; set; } = 0.4;
         public bool AllowWalk { get; set; } = true;
         public bool AllowLunch { get; set; } = true;
         public bool AllowDinner { get; set; } = true;
+        public bool AllowWork { get; set; } = true;       // 允許工作
         public bool AllowDoze { get; set; } = true;       // 允許瞌睡
         public bool AllowOverTime { get; set; } = true;   // 允許加班
         public bool AllowMad { get; set; } = true;        // 允許發瘋

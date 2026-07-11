@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -75,54 +76,99 @@ namespace LujuPet
             return now >= dateTimeStart && now <= dateTimeEnd;
         }
 
-        private void IdleTimer_Tick(object sender, EventArgs e)
+        private PET_STATUS GetRandomStatus()
         {
-            if (petConfig.AllowLunch)
-            {
-                double idleTimer = random.Next(8, 15);
-
-                DateTime start = DateTime.Today.AddHours(12);  
-                DateTime end = DateTime.Today.AddHours(13);  
-                if (IsTimePeriod(start, end) && (DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
-                {
-                    HaveLunch();
-                    lastInteraction = DateTime.Now;
-                }
-            }
-
-            if (petConfig.AllowDinner)
-            {
-                double idleTimer = random.Next(8, 15);
-
-                DateTime start = DateTime.Today.AddHours(18); 
-                DateTime end = DateTime.Today.AddHours(19); 
-                if (IsTimePeriod(start, end) && (DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
-                {
-                    HaveDinner();
-                    lastInteraction = DateTime.Now;
-                }
-            }
-
-            if (petConfig.AllowWalk)
-            {
-                double idleTimer = random.Next(3, 18);
-                if ((DateTime.Now - lastInteraction).TotalSeconds > idleTimer)
-                {
-                    StartRandomMove();
-                    lastInteraction = DateTime.Now; // 重置時間，避免持續觸發
-                }
-            }
-
+            PET_STATUS status = (PET_STATUS)(random.Next(0, (int)PET_STATUS.END));
+            return status;
         }
 
-        private async void HaveLunch()
+        bool isPetBusy = false;
+        private void IdleTimer_Tick(object sender, EventArgs e)
         {
-            ChangeGif("Images/petEat.gif");
+            double idleTimer = random.Next(6, 10);
+            double pastTime = (DateTime.Now - lastInteraction).TotalSeconds;
+
+            if (pastTime > 30)
+            {
+                isPetBusy = false;
+            }
+
+            if (isPetBusy == true)
+            {
+                return;
+            }
+
+            if (pastTime > idleTimer)
+            {
+                isPetBusy = true;
+                PET_STATUS status = GetRandomStatus();
+
+                switch(status)
+                {
+                    case PET_STATUS.OVERTIME:
+                        PetOvertime();
+                        break;
+                    case PET_STATUS.LUNCH:
+                        HaveLunch();
+                        break;
+                    case PET_STATUS.DINNER:
+                        HaveDinner();
+                        break;
+                    case PET_STATUS.SLEEP:
+                        PetSleep();
+                        break;
+                    case PET_STATUS.DOZE:
+                        PetDoze();
+                        break;
+                    case PET_STATUS.WORK:
+                        PetWork();
+                        break;
+                    case PET_STATUS.WALK:
+                        StartRandomMove();
+                        break;
+                    default:
+                        PetDefault();
+                        return;
+                }
+                lastInteraction = DateTime.Now; // 重置時間，避免持續觸發
+                isPetBusy = false;
+            }
+
         }
 
         private async void HaveDinner()
         {
-            ChangeGif("Images/petEat.gif");
+            ChangeGif(PET_STATUS.DINNER);
+        }
+
+        private async void HaveLunch()
+        {
+            ChangeGif(PET_STATUS.LUNCH);
+        }
+
+        private async void PetSleep()
+        {
+            ChangeGif(PET_STATUS.SLEEP);
+        }
+
+        private async void PetDoze()
+        {
+            ChangeGif(PET_STATUS.DOZE);
+        }
+
+        private async void PetWork()
+        {
+            ChangeGif(PET_STATUS.WORK);
+        }
+
+        private async void PetOvertime()
+        {
+            ChangeGif(PET_STATUS.OVERTIME);
+        }
+
+        private async void PetDefault()
+        {
+            ChangeGif(PET_STATUS.DEFAULT);
         }
 
         // 隨機左右移動，移動時顯示 petMove.gif，結束後恢復 pet.gif
@@ -141,13 +187,15 @@ namespace LujuPet
             DateTime endTime = DateTime.Now.AddSeconds(duration);
 
             // 切換成移動 GIF
-            ChangeGif("Images/petMove.gif");
+            ChangeGif(PET_STATUS.WALK);
 
             while (DateTime.Now < endTime)
             {
                 if (isDrag)
                 {
-                    break;
+                    isWalking = false;
+                    return;
+                    //break;
                 }
 
                 // 計算下一個位置
@@ -181,7 +229,7 @@ namespace LujuPet
             }
 
             // 移動結束後恢復原始 GIF
-            ChangeGif("Images/pet.gif");
+            ChangeGif(PET_STATUS.DEFAULT);
 
             isWalking = false;
         }
@@ -197,7 +245,7 @@ namespace LujuPet
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
-                ChangeGif("Images/petDrag.gif");
+                ChangeGif(PET_STATUS.DRAG);
                 this.DragMove(); // 阻塞直到拖曳結束
                 sw.Stop();
 
@@ -210,7 +258,7 @@ namespace LujuPet
                 }
                 else
                 {
-                    ChangeGif("Images/petClick.gif");
+                    ChangeGif(PET_STATUS.SHOCKED);
                     Task.Delay(300).ContinueWith(_ =>
                     {
                         //Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
@@ -223,7 +271,7 @@ namespace LujuPet
 
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            ChangeGif("Images/pet.gif");
+            ChangeGif(PET_STATUS.DEFAULT);
         }
 
         private void FeedPet()
@@ -231,9 +279,9 @@ namespace LujuPet
 
             int randomSeed = random.Next(0, 100);
 
-            if (randomSeed > 100)
+            if (randomSeed > 10)
             {
-                ChangeGif("Images/petGoodApple.gif");
+                ChangeGif(PET_STATUS.GOOD_APPLE);
                 Task.Delay(500).ContinueWith(_ =>
                 {
                     //Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
@@ -241,10 +289,10 @@ namespace LujuPet
             }
             else
             {
-                ChangeGif("Images/petBadApple.gif");
+                ChangeGif(PET_STATUS.BAD_APPLE);
                 Task.Delay(5000).ContinueWith(_ =>
                 {
-                    Dispatcher.Invoke(() => ChangeGif("Images/pet.gif"));
+                    Dispatcher.Invoke(() => ChangeGif(PET_STATUS.DEFAULT));
                 });
             }
 
@@ -302,8 +350,9 @@ namespace LujuPet
         }
 
         // 共用方法：切換 GIF
-        private void ChangeGif(string path)
+        private void ChangeGif(PET_STATUS status)
         {
+            string path = "Images/" + status.ToString() + ".gif";
             var uri = new Uri($"pack://application:,,,/" + path, UriKind.Absolute);
             var image = new BitmapImage(uri);
             ImageBehavior.SetAnimatedSource(PetImage, image);

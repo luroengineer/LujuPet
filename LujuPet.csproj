@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\BAD_APPLE.gif" />
+    <None Remove="Images\DEFAULT.gif" />
+    <None Remove="Images\DINNER.gif" />
+    <None Remove="Images\DOZE.gif" />
+    <None Remove="Images\DRAG.gif" />
+    <None Remove="Images\GOOD_APPLE.gif" />
+    <None Remove="Images\LUNCH.gif" />
+    <None Remove="Images\OVERTIME.gif" />
     <None Remove="Images\pet.gif" />
     <None Remove="Images\petBadApple.gif" />
     <None Remove="Images\petClick.gif" />
@@ -18,6 +26,10 @@
     <None Remove="Images\petGoodApple.gif" />
     <None Remove="Images\petMove.gif" />
     <None Remove="Images\petWork.gif" />
+    <None Remove="Images\SHOCKED.gif" />
+    <None Remove="Images\SLEEP.gif" />
+    <None Remove="Images\WALK.gif" />
+    <None Remove="Images\WORK.gif" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,14 +41,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\pet.gif" />
-    <Resource Include="Images\petBadApple.gif" />
-    <Resource Include="Images\petClick.gif" />
-    <Resource Include="Images\petDrag.gif" />
-    <Resource Include="Images\petEat.gif" />
-    <Resource Include="Images\petGoodApple.gif" />
-    <Resource Include="Images\petMove.gif" />
-    <Resource Include="Images\petWork.gif" />
+    <Resource Include="Images\BAD_APPLE.gif" />
+    <Resource Include="Images\DEFAULT.gif" />
+    <Resource Include="Images\DINNER.gif" />
+    <Resource Include="Images\DOZE.gif" />
+    <Resource Include="Images\DRAG.gif" />
+    <Resource Include="Images\GOOD_APPLE.gif" />
+    <Resource Include="Images\LUNCH.gif" />
+    <Resource Include="Images\OVERTIME.gif" />
+    <Resource Include="Images\SHOCKED.gif" />
+    <Resource Include="Images\SLEEP.gif" />
+    <Resource Include="Images\WALK.gif" />
+    <Resource Include="Images\WORK.gif" />
   </ItemGroup>
 
 </Project>
