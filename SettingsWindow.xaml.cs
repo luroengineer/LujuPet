@@ -12,29 +12,12 @@ namespace LujuPet
 
             petConfig = _petConfig;
             this.DataContext = petConfig;
-            // 初始化 UI
-            //SizeBox.Text = petConfig.PetSize.ToString();
-            //WalkBox.IsChecked = petConfig.AllowWalk;
-            //LunchBox.IsChecked = petConfig.AllowLunch;
-
 
             SaveButton.Click += SaveButton_Click;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
- /*           if (double.TryParse(SizeBox.Text, out double newSize))
-            {
-                PetSize = newSize;
-            }
-            else
-            {
-                PetSize = 0.4; // 預設值
-            }
-
-            AllowWalk = WalkBox.IsChecked == true;
-            AllowLunch = LunchBox.IsChecked == true;
-            */
             DialogResult = true;
             Close();
         }

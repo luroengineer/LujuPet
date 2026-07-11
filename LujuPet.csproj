@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Images\petIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,10 @@
     <None Remove="Images\petEat.gif" />
     <None Remove="Images\petGoodApple.gif" />
     <None Remove="Images\petMove.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\petIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>
