@@ -437,6 +437,18 @@ namespace LujuPet
 
             ContextMenu menu = new ContextMenu();
 
+            // 在 PetImage_MouseRightButtonUp 內新增
+            MenuItem feedbackItem = new MenuItem { Header = "填寫反饋" };
+            feedbackItem.Click += (s, args) =>
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://forms.gle/sxnt1Q9noYTng6w67",
+                    UseShellExecute = true
+                });
+            };
+            menu.Items.Add(feedbackItem);
+
             MenuItem exitItem = new MenuItem { Header = "結束滷豬" };
             exitItem.Click += (s, args) => Application.Current.Shutdown();
             menu.Items.Add(exitItem);
