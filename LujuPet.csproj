@@ -11,11 +11,14 @@
 
   <ItemGroup>
     <None Remove="Images\BAD_APPLE.gif" />
+    <None Remove="Images\COOK_CRAB.gif" />
+    <None Remove="Images\COOK_FA.gif" />
     <None Remove="Images\DEFAULT.gif" />
     <None Remove="Images\DINNER.gif" />
     <None Remove="Images\DOZE.gif" />
     <None Remove="Images\DRAG.gif" />
     <None Remove="Images\GOOD_APPLE.gif" />
+    <None Remove="Images\KUAI.gif" />
     <None Remove="Images\LUNCH.gif" />
     <None Remove="Images\OVERTIME.gif" />
     <None Remove="Images\pet.gif" />
@@ -42,11 +45,14 @@
 
   <ItemGroup>
     <Resource Include="Images\BAD_APPLE.gif" />
+    <Resource Include="Images\COOK_CRAB.gif" />
+    <Resource Include="Images\COOK_FA.gif" />
     <Resource Include="Images\DEFAULT.gif" />
     <Resource Include="Images\DINNER.gif" />
     <Resource Include="Images\DOZE.gif" />
     <Resource Include="Images\DRAG.gif" />
     <Resource Include="Images\GOOD_APPLE.gif" />
+    <Resource Include="Images\KUAI.gif" />
     <Resource Include="Images\LUNCH.gif" />
     <Resource Include="Images\OVERTIME.gif" />
     <Resource Include="Images\SHOCKED.gif" />

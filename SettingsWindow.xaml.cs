@@ -26,19 +26,23 @@ namespace LujuPet
     public enum PET_STATUS
     {
         DEFAULT,
-        OVERTIME,
         DINNER,
         LUNCH,
+        OVERTIME,
         SLEEP,
         DOZE,
         WORK,
         WALK,
+        KUAI,
         END,
 
         SHOCKED,
         DRAG,        
         GOOD_APPLE,
         BAD_APPLE,
+        COOK,
+        COOK_FA,
+        COOK_CRAB,
     }
 
     public class PetConfig
@@ -57,5 +61,15 @@ namespace LujuPet
         public bool AllowIt { get; set; } = true;         // 哀踢通知
         public bool AllowHr { get; set; } = true;         // 人資通知
         public bool AllowAdm { get; set; } = true;        // 管理通知
+
+        public int LunchStartHour { get; set; } = 11;
+        public int LunchStartMinute { get; set; } = 45;
+        public int LunchEndHour { get; set; } = 13;
+        public int LunchEndMinute { get; set; } = 0;
+
+        public int DinnerStartHour { get; set; } = 14;
+        public int DinnerStartMinute { get; set; } = 20;
+        public int DinnerEndHour { get; set; } = 15;
+        public int DinnerEndMinute { get; set; } = 30;
     }
 }

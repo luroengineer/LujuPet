@@ -34,6 +34,7 @@ namespace LujuPet
             ResizePet();
             InitIdleTimer();
             lastInteraction = DateTime.Now;
+            CheckDatePass();
         }
 
         private void LoadConfig()
@@ -51,6 +52,23 @@ namespace LujuPet
         {
             string json = JsonSerializer.Serialize(petConfig, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(configPath, json);
+        }
+
+        private bool CheckDatePass()
+        {
+            DateTime start = new DateTime(2026, 7, 10, 0, 0, 0);
+            DateTime end = new DateTime(2026, 7, 12, 23, 59, 0);
+
+            if (IsTimePeriod(start, end))
+            {
+                return true;
+            }
+            else
+            {
+                MessageBox.Show("試用版已結束啦~", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Application.Current.Shutdown();
+                return false;
+            }
         }
 
         // 重新設定寵物尺寸
@@ -76,9 +94,91 @@ namespace LujuPet
             return now >= dateTimeStart && now <= dateTimeEnd;
         }
 
+        private bool isRandomRun(int probability)
+        {
+            int randomNum = random.Next(0, 100);
+            return (randomNum < probability);
+        }
+
         private PET_STATUS GetRandomStatus()
         {
-            PET_STATUS status = (PET_STATUS)(random.Next(0, (int)PET_STATUS.END));
+            PET_STATUS status = PET_STATUS.DEFAULT; //(PET_STATUS)(random.Next(0, (int)PET_STATUS.END));
+
+            if (petConfig.AllowDinner)
+            {
+                DateTime start = DateTime.Today.AddHours(petConfig.DinnerStartHour).AddMinutes(petConfig.DinnerStartMinute);
+                DateTime end = DateTime.Today.AddHours(petConfig.DinnerEndHour).AddMinutes(petConfig.DinnerEndMinute);
+
+                if (IsTimePeriod(start, end))
+                {
+                    return PET_STATUS.DINNER;
+                }
+            }
+
+            if (petConfig.AllowLunch)
+            {
+                DateTime start = DateTime.Today.AddHours(petConfig.LunchStartHour).AddMinutes(petConfig.LunchStartMinute);
+                DateTime end = DateTime.Today.AddHours(petConfig.LunchEndHour).AddMinutes(petConfig.LunchEndMinute);
+
+                if (IsTimePeriod(start, end))
+                {
+                    return PET_STATUS.LUNCH;
+                }
+            }
+
+            if (petConfig.AllowOverTime)
+            {
+                DateTime start = DateTime.Today.AddHours(18).AddMinutes(30);
+                DateTime end = DateTime.Today.AddHours(23).AddMinutes(59);
+
+                if (IsTimePeriod(start, end) && isRandomRun(50))
+                {
+                    return PET_STATUS.OVERTIME;
+                }
+            }
+
+            if (petConfig.AllowDoze)
+            {
+                if (isRandomRun(50))
+                {
+                    return PET_STATUS.DOZE;
+                }
+                if (isRandomRun(50))
+                {
+                    return PET_STATUS.SLEEP;
+                }
+            }
+
+            if (petConfig.AllowWork)
+            {
+                DateTime start = DateTime.Today.AddHours(8).AddMinutes(30);
+                DateTime end = DateTime.Today.AddHours(17).AddMinutes(30);
+
+                if (IsTimePeriod(start, end) && isRandomRun(50))
+                {
+                    return PET_STATUS.WORK;
+                }
+            }
+
+            if (petConfig.AllowWalk)
+            {
+                if (isRandomRun(80))
+                {
+                    return PET_STATUS.WALK;
+                }
+            }
+
+            if (petConfig.AllowMad)
+            {
+                DateTime start = new DateTime(2026, 7, 10, 0, 0, 0);
+                DateTime end = new DateTime(2026, 7, 12, 23, 0, 0);
+
+                if (IsTimePeriod(start, end) && isRandomRun(12))
+                {
+                    return PET_STATUS.KUAI;
+                }
+            }
+
             return status;
         }
 
@@ -105,14 +205,14 @@ namespace LujuPet
 
                 switch(status)
                 {
-                    case PET_STATUS.OVERTIME:
-                        PetOvertime();
-                        break;
                     case PET_STATUS.LUNCH:
                         HaveLunch();
                         break;
                     case PET_STATUS.DINNER:
                         HaveDinner();
+                        break;
+                    case PET_STATUS.OVERTIME:
+                        PetOvertime();
                         break;
                     case PET_STATUS.SLEEP:
                         PetSleep();
@@ -123,12 +223,16 @@ namespace LujuPet
                     case PET_STATUS.WORK:
                         PetWork();
                         break;
+                    case PET_STATUS.KUAI:
+                        PetKuai();
+                        break;
                     case PET_STATUS.WALK:
                         StartRandomMove();
                         break;
                     default:
-                        PetDefault();
-                        return;
+                        //PetDefault();
+                        //return;
+                        break;
                 }
                 lastInteraction = DateTime.Now; // 重置時間，避免持續觸發
                 isPetBusy = false;
@@ -164,6 +268,33 @@ namespace LujuPet
         private async void PetOvertime()
         {
             ChangeGif(PET_STATUS.OVERTIME);
+        }
+
+        private async void PetKuai()
+        {
+            ChangeGif(PET_STATUS.KUAI);
+        }
+
+        private async void PetCook()
+        {
+            if (isRandomRun(50))
+            {
+                ChangeGif(PET_STATUS.COOK_FA);
+                Task.Delay(5000).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() => PetDefault());
+                });
+            }
+            else
+            {
+                ChangeGif(PET_STATUS.COOK_CRAB);
+                Task.Delay(5000).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() => PetDefault());
+                });
+            }
+
+            lastInteraction = DateTime.Now; // 更新互動時間
         }
 
         private async void PetDefault()
@@ -229,7 +360,7 @@ namespace LujuPet
             }
 
             // 移動結束後恢復原始 GIF
-            ChangeGif(PET_STATUS.DEFAULT);
+            PetDefault();
 
             isWalking = false;
         }
@@ -271,7 +402,7 @@ namespace LujuPet
 
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            ChangeGif(PET_STATUS.DEFAULT);
+            PetDefault();
         }
 
         private void FeedPet()
@@ -292,7 +423,7 @@ namespace LujuPet
                 ChangeGif(PET_STATUS.BAD_APPLE);
                 Task.Delay(5000).ContinueWith(_ =>
                 {
-                    Dispatcher.Invoke(() => ChangeGif(PET_STATUS.DEFAULT));
+                    Dispatcher.Invoke(() => PetDefault());
                 });
             }
 
@@ -330,6 +461,13 @@ namespace LujuPet
                 FeedPet();
             };
             menu.Items.Add(feedAppleItem);
+
+            MenuItem cookAppleItem = new MenuItem { Header = "熬製滷汁" };
+            cookAppleItem.Click += (s, args) =>
+            {
+                PetCook();
+            };
+            menu.Items.Add(cookAppleItem);
 
             MenuItem settingsItem = new MenuItem { Header = "開啟設定" };
             settingsItem.Click += (s, args) =>
