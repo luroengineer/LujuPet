@@ -61,6 +61,7 @@ namespace LujuPet
         public bool AllowLeader { get; set; } = true;     // 允許教主
         public bool AllowUpdate { get; set; } = true;     // 允許更新
         public bool AllowAdvertise { get; set; } = true;  // 允許廣告
+        public bool AllowLottery { get; set; } = true;    // 允許抽獎
         public bool AllowIt { get; set; } = true;         // 哀踢通知
         public bool AllowHr { get; set; } = true;         // 人資通知
         public bool AllowAdm { get; set; } = true;        // 管理通知
