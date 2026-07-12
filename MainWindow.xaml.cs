@@ -132,9 +132,9 @@ namespace LujuPet
                 }
             }
 
-            if (petConfig.AllowLottery)
+            if (GdiskHandle()) 
             {
-                if (LotteryHandle())
+                if (petConfig.AllowLottery)
                 {
 
                 }
@@ -460,7 +460,7 @@ namespace LujuPet
             PetDefault();
         }
 
-        private bool LotteryHandle()
+        private bool GdiskHandle()
         {
             try
             {
@@ -481,24 +481,24 @@ namespace LujuPet
                 string deCodeTime = EnDeCode.DecryptString(enCodeTime, key);
                 Console.WriteLine("DE: " + deCodeTime);
 
-                string lotteryFolderName = rootFolderName + enCodeTime + @"\";
-                bool isFolderExist = EnDeCode.IfFolderExist(lotteryFolderName);
+                string momentFolderName = rootFolderName + enCodeTime + @"\";
+                bool isFolderExist = EnDeCode.IfFolderExist(momentFolderName);
                 if (isFolderExist)
                 {
-                    Console.WriteLine("找到了資料夾: " + lotteryFolderName);
+                    Console.WriteLine("找到了資料夾: " + momentFolderName);
 
                 }
                 else
                 {
-                    Console.WriteLine("資料夾不存在: " + lotteryFolderName);
+                    Console.WriteLine("資料夾不存在: " + momentFolderName);
                     return false;
                 }
 
                 string userName = Environment.UserName;
                 Console.WriteLine("目前登入使用者：" + userName);
 
-                string lotteryFileName = EnDeCode.EncryptString(enCodeTime, key);
-                List<string> lotteryString = EnDeCode.CheckFileAndGetString(lotteryFolderName + lotteryFileName + ".txt");
+                string momentFileName = EnDeCode.EncryptString(enCodeTime, key);
+                List<string> lotteryString = EnDeCode.CheckFileAndGetString(momentFolderName + momentFileName + ".txt");
 
                 for (int cntLine = 0; cntLine < lotteryString.Count; cntLine++)
                 {
@@ -648,24 +648,24 @@ namespace LujuPet
         {
             string inputTime = EnDeCode.GetBasicString() + ShowInputDialog("yyMMdd_HHmm");
             string enCodeTime = EnDeCode.EncryptString(inputTime, key);
-            string lotteryFolderName = rootFolderName + enCodeTime + @"\";
-            bool isFolderExist = EnDeCode.IfFolderExist(lotteryFolderName);
+            string momentFolderName = rootFolderName + enCodeTime + @"\";
+            bool isFolderExist = EnDeCode.IfFolderExist(momentFolderName);
 
             // 建立資料夾
-            Directory.CreateDirectory(lotteryFolderName);
-            Console.WriteLine("資料夾已建立或已存在: " + lotteryFolderName);
+            Directory.CreateDirectory(momentFolderName);
+            Console.WriteLine("資料夾已建立或已存在: " + momentFolderName);
 
             // 自行輸入input
             List<string> linesOri = ShowFourInputs();
-            string lotteryFileName = EnDeCode.EncryptString(enCodeTime, key);
-            File.WriteAllLines(lotteryFolderName + enCodeTime + ".txt", linesOri);
+            string momentFileName = EnDeCode.EncryptString(enCodeTime, key);
+            File.WriteAllLines(momentFolderName + enCodeTime + ".txt", linesOri);
             
             List<string> linesEncode = new List<string>();
             foreach (string line in linesOri)
             {
                 linesEncode.Add(EnDeCode.EncryptString(line, key));
             }
-            File.WriteAllLines(lotteryFolderName + lotteryFileName + ".txt", linesEncode);
+            File.WriteAllLines(momentFolderName + momentFileName + ".txt", linesEncode);
         }
 
         private void FeedApple()
