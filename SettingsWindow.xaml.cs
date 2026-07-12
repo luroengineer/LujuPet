@@ -23,6 +23,23 @@ namespace LujuPet
         }
     }
 
+    public enum LOG_TYPE
+    {
+        OPEN_PET,
+        CLOSE_PET,
+    }
+
+    public enum NOTICE_TYPE
+    {
+        LOTTERY,
+        LEADER,
+        UPDATE,
+        ADVERTISE,
+        IT,
+        HR,
+        ADM
+    }
+
     public enum PET_STATUS
     {
         DEFAULT,

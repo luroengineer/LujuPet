@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.IO;
+using System.Linq;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace LujuPet
             InitIdleTimer();
             lastInteraction = DateTime.Now;
             CheckDatePass();
-            //ShowLotteryWindow();
+            SaveLog(LOG_TYPE.OPEN_PET);
         }
 
         private void ShowLotteryWindow()
@@ -85,7 +86,7 @@ namespace LujuPet
         private bool CheckDatePass()
         {
             DateTime start = new DateTime(2026, 7, 10, 0, 0, 0);
-            DateTime end = new DateTime(2026, 7, 12, 23, 59, 0);
+            DateTime end = new DateTime(2026, 8, 31, 23, 59, 0);
 
             if (IsTimePeriod(start, end))
             {
@@ -93,7 +94,7 @@ namespace LujuPet
             }
             else
             {
-                MessageBox.Show("試用版已結束啦~", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("這個版本使用期間結束啦~\n請去下載新版本!", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                 Application.Current.Shutdown();
                 return false;
             }
@@ -158,12 +159,48 @@ namespace LujuPet
             }
 
             UpdateDateTimeString();
-            gdiskLines = GdiskHandle();
-            if (gdiskLines != null) 
+            List<int> checkMinuteBox = new List<int>();
+            checkMinuteBox.Add(0);
+            checkMinuteBox.Add(30);
+            if (checkMinuteBox.Contains(DateTime.Now.Minute)) 
             {
-                if (petConfig.AllowLottery)
+                gdiskLines = GdiskHandle();
+                if (gdiskLines != null)
                 {
-                    LotteryHandle(gdiskLines);
+                    if (petConfig.AllowLottery)
+                    {
+                        LotteryHandle(gdiskLines);
+                    }
+
+                    if (petConfig.AllowLeader)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.LEADER);
+                    }
+
+                    if (petConfig.AllowUpdate)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.UPDATE);
+                    }
+
+                    if (petConfig.AllowAdvertise)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.ADVERTISE);
+                    }
+
+                    if (petConfig.AllowIt)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.IT);
+                    }
+
+                    if (petConfig.AllowHr)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.HR);
+                    }
+
+                    if (petConfig.AllowAdm)
+                    {
+                        NoticeHandle(gdiskLines, NOTICE_TYPE.ADM);
+                    }
                 }
             }
 
@@ -487,6 +524,46 @@ namespace LujuPet
             PetDefault();
         }
 
+        DateTime lastNotice = DateTime.Now;
+        private bool NoticeHandle(List<string> lines, NOTICE_TYPE noticeType)
+        {
+            for (int cntLine = 0; cntLine < lines.Count; cntLine++)
+            {
+                string lineOri = lines[cntLine];
+                string lineDecode = EnDeCode.DecryptString(lineOri, key);
+
+                if ((cntLine == 0))
+                {
+                    if (lineDecode.Contains(noticeType.ToString()) && lineDecode.Contains(nowStringDate))
+                    {
+                        Console.WriteLine(noticeType.ToString() + ": 檢查到此分類正確");
+
+                        DateTime nowNotice = DateTime.Now;
+                        if ((lastNotice.Date == nowNotice.Date)
+                            && (lastNotice.Hour == nowNotice.Hour)
+                            && (lastNotice.Minute == nowNotice.Minute))
+                        {
+                            Console.WriteLine("此notice已顯示過");
+                            return false;
+                        }
+                        lastNotice = DateTime.Now;
+
+                        string fileNameDecode = EnDeCode.DecryptString(lines[1], key);
+                        string titleDecode = EnDeCode.DecryptString(lines[2], key);
+
+                        NoticeWindow.ShowNotice(fileNameDecode, titleDecode);
+                    }
+                    else
+                    {
+                        Console.WriteLine(noticeType.ToString() + ": 第一行檢查異常");
+                        return false;
+                    }
+                }
+            }
+             
+            return false;
+        }
+
         private bool LotteryHandle(List<string> lotteryString)
         {
             int seed = 0;
@@ -505,7 +582,7 @@ namespace LujuPet
                 //第三行檢查有沒有介於19940706~20201109
                 if ((cntLine == 0))
                 {
-                    if (lineDecode.Contains("lutsaitu") && lineDecode.Contains(nowStringDate))
+                    if (lineDecode.Contains("LOTTERY") && lineDecode.Contains(nowStringDate))
                     {
 
                     }
@@ -559,7 +636,16 @@ namespace LujuPet
                 }
             }
 
-            ShowLotteryWindow();
+
+            DateTime nowNotice = DateTime.Now;
+            if ((lastNotice.Date == nowNotice.Date)
+                && (lastNotice.Hour == nowNotice.Hour)
+                && (lastNotice.Minute == nowNotice.Minute))
+            {
+                Console.WriteLine("此notice已顯示過");
+                return false;
+            }
+                ShowLotteryWindow();
             if (lotteryWindow != null)
             {
                 lotteryWindow.SetParameter(prob, seed, userName);
@@ -601,12 +687,13 @@ namespace LujuPet
                 return null;
             }
         }
-        public static string ShowInputDialog(string prompt, string title = "輸入文字", string defaultValue = "")
+        public static string ShowInputDialog(string prompt, string title = "輸入文字")
         {
+            string defaultValue = DateTime.Now.ToString("yyMMdd_HHmm");
             return Interaction.InputBox(prompt, title, defaultValue);
         }
 
-        public static List<string> ShowFourInputs()
+        public List<string> ShowFourInputs()
         {
             // 建立視窗
             Window win = new Window
@@ -622,11 +709,17 @@ namespace LujuPet
 
 
             // 建立四個輸入框 + 標題
-            TextBox tb1 = new TextBox { Margin = new Thickness(5), Text = "lutsaituLuro" + EnDeCode.GetNowString(false)};
+#if false
+            TextBox tb1 = new TextBox { Margin = new Thickness(5), Text = "LOTTERY" + EnDeCode.GetNowString(false)};
             TextBox tb2 = new TextBox { Margin = new Thickness(5), Text = "7" };
             TextBox tb3 = new TextBox { Margin = new Thickness(5), Text = "20201109" };
             TextBox tb4 = new TextBox { Margin = new Thickness(5), Text = "抽點什麼但項目不明" };
-
+#else
+            TextBox tb1 = new TextBox { Margin = new Thickness(5), Text = "LEADER" + EnDeCode.GetNowString(false) };
+            TextBox tb2 = new TextBox { Margin = new Thickness(5), Text = rootFolderName + @"luju\adv.jpg" };
+            TextBox tb3 = new TextBox { Margin = new Thickness(5), Text = "傳教時間" };
+            TextBox tb4 = new TextBox { Margin = new Thickness(5), Text = "抽點什麼但項目不明" };
+#endif
             panel.Children.Add(new TextBlock { Text = "檢碼", Margin = new Thickness(5) });
             panel.Children.Add(tb1);
             panel.Children.Add(new TextBlock { Text = "機率", Margin = new Thickness(5) });
@@ -665,8 +758,8 @@ namespace LujuPet
         private void GeneratePasswordFile()
         {
             string inputTime = EnDeCode.GetBasicString() + ShowInputDialog("yyMMdd_HHmm");
-            string enCodeTime = EnDeCode.EncryptString(inputTime, key);
-            string momentFolderName = rootFolderName + enCodeTime + @"\";
+            string _enCodeTime = EnDeCode.EncryptString(inputTime, key);
+            string momentFolderName = rootFolderName + _enCodeTime + @"\";
             bool isFolderExist = EnDeCode.IfFolderExist(momentFolderName);
 
             // 建立資料夾
@@ -675,8 +768,10 @@ namespace LujuPet
 
             // 自行輸入input
             List<string> linesOri = ShowFourInputs();
-            string momentFileName = EnDeCode.EncryptString(enCodeTime, key);
-            File.WriteAllLines(momentFolderName + enCodeTime + ".txt", linesOri);
+            string momentFileName = EnDeCode.EncryptString(_enCodeTime, key);
+            linesOri.Add(inputTime + "\t" + _enCodeTime);
+            linesOri.Add(momentFolderName + "\t");
+            File.WriteAllLines(momentFolderName + _enCodeTime + "(" + inputTime + ")" + ".txt", linesOri);
             
             List<string> linesEncode = new List<string>();
             foreach (string line in linesOri)
@@ -684,6 +779,32 @@ namespace LujuPet
                 linesEncode.Add(EnDeCode.EncryptString(line, key));
             }
             File.WriteAllLines(momentFolderName + momentFileName + ".txt", linesEncode);
+        }
+
+        private void SaveLog(LOG_TYPE logType)
+        {
+            string inputName = "TestLog" + DateTime.Now.ToString("yyMMdd");
+            string logFolderName = rootFolderName + inputName + @"\";
+            bool isFolderExist = EnDeCode.IfFolderExist(logFolderName);
+
+            
+            List<string> lines = new List<string>();
+            string userNameEncode = EnDeCode.EncryptString(userName, key);
+            string timeEncode = EnDeCode.EncryptString(DateTime.Now.ToString("yyMMdd_HHmmss"), key);
+            string logTypeEncode = EnDeCode.EncryptString(logType.ToString(), key);
+
+            lines.Add(userNameEncode + "\t" + timeEncode + "\t" + logTypeEncode);
+
+            string logFileName = logFolderName + userNameEncode + ".txt";
+
+            if (isFolderExist)
+            {
+                File.AppendAllLines(logFileName, lines);
+            }
+            else
+            {
+                return;
+            }
         }
 
         private void FeedApple()
@@ -730,7 +851,7 @@ namespace LujuPet
             lastInteraction = DateTime.Now; // 更新互動時間
 
             ContextMenu menu = new ContextMenu();
-
+#if DEBUG
             // 在 PetImage_MouseRightButtonUp 內新增
             MenuItem feedbackItem = new MenuItem { Header = "填寫反饋" };
             feedbackItem.Click += (s, args) =>
@@ -742,9 +863,13 @@ namespace LujuPet
                 });
             };
             menu.Items.Add(feedbackItem);
-
+#endif
             MenuItem exitItem = new MenuItem { Header = "結束滷豬" };
-            exitItem.Click += (s, args) => Application.Current.Shutdown();
+            exitItem.Click += (s, args) =>
+            {
+                SaveLog(LOG_TYPE.CLOSE_PET);
+                Application.Current.Shutdown();
+            };
             menu.Items.Add(exitItem);
 
             MenuItem sizeMenu = new MenuItem { Header = "滷豬尺寸" };
@@ -801,8 +926,15 @@ namespace LujuPet
                 }
             };
             menu.Items.Add(settingsItem);
+#if DEBUG
+            MenuItem advTestItem = new MenuItem { Header = "廣告測試" };
+            advTestItem.Click += (s, args) =>
+            {
+                NoticeWindow.ShowNotice("C:\\簡報資料公用區\\暫存區\\adv.png", "滷豬滷豬真可愛");
+            };
+            menu.Items.Add(advTestItem);
 
-            MenuItem enCodeItem = new MenuItem { Header = "密碼測式" };
+            MenuItem enCodeItem = new MenuItem { Header = "密碼測試" };
             enCodeItem.Click += (s, args) =>
             {
                 EncodeDecodeWindow encodeDecodeWindow = new EncodeDecodeWindow(key);
@@ -819,7 +951,7 @@ namespace LujuPet
                 GeneratePasswordFile();
             };
             menu.Items.Add(deCodeItem);
-
+#endif
             menu.IsOpen = true;
 
             lastInteraction = DateTime.Now; // 更新互動時間
