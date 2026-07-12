@@ -29,7 +29,16 @@ namespace LujuPet
         private string configPath = "petConfig.json";
         private string rootFolderName = @"C:\簡報資料公用區\暫存區\";
         LotteryWindow lotteryWindow = new LotteryWindow();
+        string userName = Environment.UserName;
         string key = "pig";
+
+        string nowStringDate;
+        string enCodeDate;
+        string deCodeDate;
+        string nowStringTime;
+        string enCodeTime;
+        string deCodeTime;
+
 
 
         bool isWalking = false;
@@ -119,9 +128,25 @@ namespace LujuPet
             return (randomNum < probability);
         }
 
+        private void UpdateDateTimeString()
+        {
+            nowStringDate = EnDeCode.GetNowString(false);
+            enCodeDate = EnDeCode.EncryptString(nowStringDate, key);
+            Console.WriteLine("EN: " + enCodeDate);
+            deCodeDate = EnDeCode.DecryptString(enCodeDate, key);
+            Console.WriteLine("DE: " + deCodeDate);
+
+            nowStringTime = EnDeCode.GetNowString(true);
+            enCodeTime = EnDeCode.EncryptString(nowStringTime, key);
+            Console.WriteLine("EN: " + enCodeTime);
+            deCodeTime = EnDeCode.DecryptString(enCodeTime, key);
+            Console.WriteLine("DE: " + deCodeTime);
+        }
+
         private PET_STATUS GetRandomStatus()
         {
             PET_STATUS status = PET_STATUS.DEFAULT; //(PET_STATUS)(random.Next(0, (int)PET_STATUS.END));
+            List<string> gdiskLines = null;
 
             if (petConfig.AllowAlarm)
             {
@@ -132,11 +157,13 @@ namespace LujuPet
                 }
             }
 
-            if (GdiskHandle()) 
+            UpdateDateTimeString();
+            gdiskLines = GdiskHandle();
+            if (gdiskLines != null) 
             {
                 if (petConfig.AllowLottery)
                 {
-
+                    LotteryHandle(gdiskLines);
                 }
             }
 
@@ -460,27 +487,95 @@ namespace LujuPet
             PetDefault();
         }
 
-        private bool GdiskHandle()
+        private bool LotteryHandle(List<string> lotteryString)
+        {
+            int seed = 0;
+            int prob = 0;
+            string lotteryMsg = "";
+
+            for (int cntLine = 0; cntLine < lotteryString.Count; cntLine++)
+            {
+                string lineOri = lotteryString[cntLine];
+                string lineDecode = EnDeCode.DecryptString(lineOri, key);
+
+
+                Console.WriteLine("lottery第" + cntLine + "行檢查：" + lineOri + "\t" + lineDecode);
+                //第一行檢查是不是含有lutsaitu和當天日期
+                //第二行檢查機率是不是 0 ~ 100
+                //第三行檢查有沒有介於19940706~20201109
+                if ((cntLine == 0))
+                {
+                    if (lineDecode.Contains("lutsaitu") && lineDecode.Contains(nowStringDate))
+                    {
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("第一行檢查異常");
+                        return false;
+                    }
+                }
+
+                if ((cntLine == 1))
+                {
+                    prob = int.Parse(lineDecode);
+                    if ((prob >= 0) && (prob <= 100))
+                    {
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("第二行檢查異常");
+                        return false;
+                    }
+                }
+
+                if ((cntLine == 2))
+                {
+                    seed = int.Parse(lineDecode);
+                    if ((seed >= 19940706) && (seed <= 20201109))
+                    {
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("第三行檢查異常");
+                        return false;
+                    }
+                }
+
+                if ((cntLine == 3))
+                {
+                    lotteryMsg = lineDecode;
+                    if (lotteryMsg != null)
+                    {
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("第四行檢查異常");
+                        return false;
+                    }
+                }
+            }
+
+            ShowLotteryWindow();
+            if (lotteryWindow != null)
+            {
+                lotteryWindow.SetParameter(prob, seed, userName);
+                lotteryWindow.SetLotteryMsg(lotteryMsg);
+                string lotteryPasswordInput = nowStringTime + userName;
+                string lotteryPasswordOutput = EnDeCode.EncryptString(lotteryPasswordInput, key);
+                Console.WriteLine("樂透密碼: " + lotteryPasswordInput + "\t" + lotteryPasswordOutput);
+                lotteryWindow.SetPrizeAcPw(userName, lotteryPasswordOutput);
+            }
+            return true;
+        }
+
+        private List<string> GdiskHandle()
         {
             try
             {
-
-                int seed = 0;
-                int prob = 0;
-                string lotteryMsg = "";
-
-                string nowStringDate = EnDeCode.GetNowString(false);
-                string enCodeDate = EnDeCode.EncryptString(nowStringDate, key);
-                Console.WriteLine("EN: " + enCodeDate);
-                string deCodeDate = EnDeCode.DecryptString(enCodeDate, key);
-                Console.WriteLine("DE: " + deCodeDate);
-
-                string nowStringTime = EnDeCode.GetNowString(true);
-                string enCodeTime = EnDeCode.EncryptString(nowStringTime, key);
-                Console.WriteLine("EN: " + enCodeTime);
-                string deCodeTime = EnDeCode.DecryptString(enCodeTime, key);
-                Console.WriteLine("DE: " + deCodeTime);
-
                 string momentFolderName = rootFolderName + enCodeTime + @"\";
                 bool isFolderExist = EnDeCode.IfFolderExist(momentFolderName);
                 if (isFolderExist)
@@ -491,96 +586,19 @@ namespace LujuPet
                 else
                 {
                     Console.WriteLine("資料夾不存在: " + momentFolderName);
-                    return false;
+                    return null;
                 }
-
-                string userName = Environment.UserName;
-                Console.WriteLine("目前登入使用者：" + userName);
 
                 string momentFileName = EnDeCode.EncryptString(enCodeTime, key);
-                List<string> lotteryString = EnDeCode.CheckFileAndGetString(momentFolderName + momentFileName + ".txt");
+                List<string> momentString = EnDeCode.CheckFileAndGetString(momentFolderName + momentFileName + ".txt");
+                
+                return momentString; 
 
-                for (int cntLine = 0; cntLine < lotteryString.Count; cntLine++)
-                {
-                    string lineOri = lotteryString[cntLine];
-                    string lineDecode = EnDeCode.DecryptString(lineOri, key);
-
-                    Console.WriteLine("lottery第" + cntLine + "行檢查：" + lineOri + "\t" + lineDecode);
-                    //第一行檢查是不是含有lutsaitu和當天日期
-                    //第二行檢查機率是不是 0 ~ 100
-                    //第三行檢查有沒有介於19940706~20201109
-                    if ((cntLine == 0))
-                    {
-                        if (lineDecode.Contains("lutsaitu") && lineDecode.Contains(nowStringDate))
-                        {
-
-                        }
-                        else
-                        {
-                            Console.WriteLine("第一行檢查異常");
-                            return false;
-                        }
-                    }
-
-                    if ((cntLine == 1))
-                    {
-                        prob = int.Parse(lineDecode);
-                        if ((prob >= 0) && (prob <= 100))
-                        {
-
-                        }
-                        else
-                        {
-                            Console.WriteLine("第二行檢查異常");
-                            return false;
-                        }
-                    }
-
-                    if ((cntLine == 2))
-                    {
-                        seed = int.Parse(lineDecode);
-                        if ((seed >= 19940706) && (seed <= 20201109))
-                        {
-
-                        }
-                        else
-                        {
-                            Console.WriteLine("第三行檢查異常");
-                            return false;
-                        }
-                    }
-
-                    if ((cntLine == 3))
-                    {
-                        lotteryMsg = lineDecode;
-                        if (lotteryMsg != null)
-                        {
-
-                        }
-                        else
-                        {
-                            Console.WriteLine("第四行檢查異常");
-                            return false;
-                        }
-                    }
-                }
-
-                ShowLotteryWindow();
-                if (lotteryWindow != null)
-                {
-                    lotteryWindow.SetParameter(prob, seed, userName);
-                    lotteryWindow.SetLotteryMsg(lotteryMsg);
-                    string lotteryPasswordInput = nowStringTime + userName;
-                    string lotteryPasswordOutput = EnDeCode.EncryptString(lotteryPasswordInput, key);
-                    Console.WriteLine("樂透密碼: " + lotteryPasswordInput + "\t" + lotteryPasswordOutput);
-                    lotteryWindow.SetPrizeAcPw(userName, lotteryPasswordOutput);
-                }
-                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return null;
             }
         }
         public static string ShowInputDialog(string prompt, string title = "輸入文字", string defaultValue = "")
