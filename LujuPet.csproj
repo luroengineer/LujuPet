@@ -14,6 +14,7 @@
     <None Remove="Images\BAD_APPLE.gif" />
     <None Remove="Images\COOK_CRAB.gif" />
     <None Remove="Images\COOK_FA.gif" />
+    <None Remove="Images\DANCE.gif" />
     <None Remove="Images\DEFAULT.gif" />
     <None Remove="Images\DINNER.gif" />
     <None Remove="Images\DOZE.gif" />
@@ -50,6 +51,7 @@
     <Resource Include="Images\BAD_APPLE.gif" />
     <Resource Include="Images\COOK_CRAB.gif" />
     <Resource Include="Images\COOK_FA.gif" />
+    <Resource Include="Images\DANCE.gif" />
     <Resource Include="Images\DEFAULT.gif" />
     <Resource Include="Images\DINNER.gif" />
     <Resource Include="Images\DOZE.gif" />

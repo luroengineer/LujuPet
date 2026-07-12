@@ -42,6 +42,7 @@ namespace LujuPet
         GOOD_APPLE,
         BAD_APPLE,
         RICE_BALL,
+        DANCE,
         COOK,
         COOK_FA,
         COOK_CRAB,

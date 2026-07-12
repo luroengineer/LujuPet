@@ -291,6 +291,18 @@ namespace LujuPet
             ChangeGif(PET_STATUS.KUAI);
         }
 
+        private async void PetDance()
+        {
+
+            ChangeGif(PET_STATUS.DANCE);
+            Task.Delay(1000).ContinueWith(_ =>
+            {
+                //Dispatcher.Invoke(() => PetDefault());
+            });
+
+            lastInteraction = DateTime.Now; // 更新互動時間
+        }
+
         private async void PetCook()
         {
             if (isRandomRun(50))
@@ -509,6 +521,13 @@ namespace LujuPet
                 FeedRiceBall();
             };
             menu.Items.Add(feedRiceBallItem);
+
+            MenuItem DanceItem = new MenuItem { Header = "扭動一下" };
+            DanceItem.Click += (s, args) =>
+            {
+                PetDance();
+            };
+            menu.Items.Add(DanceItem);
 
             MenuItem cookAppleItem = new MenuItem { Header = "熬製滷汁" };
             cookAppleItem.Click += (s, args) =>
