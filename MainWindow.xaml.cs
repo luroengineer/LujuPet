@@ -881,6 +881,8 @@ namespace LujuPet
                 {
                     petConfig.PetSize = scale / 100.0;
                     ResizePet();
+                    SaveConfig();
+                    LoadConfig();
                 };
                 sizeMenu.Items.Add(sizeItem);
             }
